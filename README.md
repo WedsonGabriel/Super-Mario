@@ -58,6 +58,7 @@ Este projeto foi desenvolvido como requisito avaliativo para a disciplina de **A
 
 * **Instituição:** IFRN (Instituto Federal do Rio Grande do Norte)
 * **Curso:** Tecnologia em Análise e Desenvolvimento de Sistemas (TADS)
+* **Orientador:** Prof. Dr. Eduardo Bráulio
 
 ## 👥 Desenvolvedores
 
