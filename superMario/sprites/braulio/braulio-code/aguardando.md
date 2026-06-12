@@ -1,1 +1,0 @@
-Código das imagens em breve!
