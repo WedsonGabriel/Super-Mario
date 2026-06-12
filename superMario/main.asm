@@ -49,8 +49,8 @@ ghost_hell:
     add $25, $0, $31 # salva endereço de retorno original do jogo
     
     la $15, line_ghost_values # endereço base do array
-    addi $15, $15, 4 # pula o primeiro '-1' -> Aponta para o valor 15 (Início)
-    addi $16, $15, 60 # avança 15 elementos (15 * 4 = 60) -> Aponta para o valor 30 (Fim)
+    addi $15, $15, 4 # pula o primeiro '-1' -> Aponta para o valor 10 (Início)
+    addi $16, $15, 100 # avança 15 elementos (25 * 4 = 100) -> Aponta para o valor 30 (Fim)
     
     # inicializa os passos (direção) de iteração na memória
     li $19, 4 # ponteiro $15 vai andar para a frente (+4 bytes)
@@ -83,7 +83,11 @@ for_hell:
     # atualiza os ponteiros para o próximo frame
     add $15, $15, $19
     add $16, $16, $20
-   
+    
+    addi $4, $0, 50
+    addi $2, $0, 32
+    syscall
+    
     la $4, bg_hell
     jal render
     
