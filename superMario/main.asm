@@ -5,8 +5,7 @@
 main:
 	la $4, bg_hell
 	jal render
-	jal ghost_hell
-	#jal timer
+	jal hell
 	
 	#la $4, bg_earth
 	#jal render
@@ -45,18 +44,21 @@ forTimer:
 endTimer:
 	jr $31
 
-ghost_hell:
+# entrada: nenhuma
+# alterados: $2, $4, $5, $7, $15, $16, $19, $20, $25
+# saida: void
+hell:
     add $25, $0, $31 # salva endereço de retorno original do jogo
     
     la $15, line_ghost_values # endereço base do array
-    addi $15, $15, 4 # pula o primeiro '-1' -> Aponta para o valor 10 (Início)
-    addi $16, $15, 100 # avança 15 elementos (25 * 4 = 100) -> Aponta para o valor 30 (Fim)
+    addi $15, $15, 4 # pula o primeiro -1 -> Aponta para o valor 10 (Início)
+    addi $16, $15, 100 # avança 15 elementos -> Aponta para o valor 30 (Fim)
     
     # inicializa os passos (direção) de iteração na memória
     li $19, 4 # ponteiro $15 vai andar para a frente (+4 bytes)
     li $20, -4 # ponteiro $16 vai andar para trás (-4 bytes)
 
-for_hell:
+for_draw_ghost_hell:
     lw $4, 0($15) # linha para o fantasma do meio
     lw $5, 0($16) # linha para os fantasmas das pontas (usando $5 temporariamente)
     
@@ -65,7 +67,7 @@ for_hell:
     beq $5, -1, inverter_signal
 
     # desenha os fantasmas
-    raw_ghost_left:
+    draw_ghost_left:
         lw $7, column_ghost_left
         add $4, $0, $5
         jal draw_ghost
@@ -84,29 +86,29 @@ for_hell:
     add $15, $15, $19
     add $16, $16, $20
     
-    addi $4, $0, 50
+    addi $4, $0, 50 # tempo em milissegundos
     addi $2, $0, 32
     syscall
     
     la $4, bg_hell
     jal render
     
-    j for_hell
+    j for_draw_ghost_hell
 	
 end_ghost_hell:
     jr $25
     
 inverter_signal:
     # inverte o sinal dos passos multiplicando por -1
-    mul $19, $19 -1
+    mul $19, $19, -1
     mul $20, $20, -1
     
     add $15, $15, $19
     add $16, $16, $20
     
-    j for_hell
+    j for_draw_ghost_hell
 
- # importa arquivo com os cenários
+# importa arquivo com os cenários
 .include "backgrounds\bg_hell.asm"
 .include "backgrounds\bg_earth.asm"
 .include "backgrounds\bg_heaven.asm"
