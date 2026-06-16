@@ -24,8 +24,14 @@
   column_ghost_mid: .word 55
   column_ghost_right: .word 95
   
-  line_ghost_values: .word -1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1
+  line_ghost_values: .word -1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, -1
   
+  # Variáveis Globais de Estado para a Máquina de Estados do Inferno
+  ptr_ghost_mid: .word 4 # inicia apontando para o índice 1 (1 * 4 bytes = 4)
+  ptr_ghost_side: .word 108 # inicia apontando para o índice 27 (27 * 4 bytes = 108)
+  step_forward: .word 4
+  step_backward: .word -4
+
 .text
 
 # entrada: $4, $7 (posição do fantasma [LINHA][COLUNA], respectivamente)
@@ -73,3 +79,79 @@ draw_ghost:
 
 end_draw_ghost:
 	jr $31
+
+# ====================================================================
+# LÓGICA DO INFERNO (MÁQUINA DE ESTADOS)
+# ====================================================================
+# entrada: nenhuma
+# alterados: $2, $4, $5, $7, $15, $16, $17, $19, $20, $25
+# saída: void
+hell:
+	add $25, $0, $31 
+	
+	la $15, line_ghost_values  
+	lw $16, ptr_ghost_mid
+	add $15, $15, $16      
+	
+	la $16, line_ghost_values
+	lw $17, ptr_ghost_side
+	add $16, $16, $17      
+	
+	lw $19, step_forward
+	lw $20, step_backward
+	
+	lw $4, 0($15) 
+	lw $5, 0($16) 
+	
+	beq $4, -1, inverter_signal
+	beq $5, -1, inverter_signal
+
+	j draw_hell_frame
+
+inverter_signal:
+	mul $19, $19, -1
+	mul $20, $20, -1
+	sw $19, step_forward
+	sw $20, step_backward
+
+	lw $16, ptr_ghost_mid
+	add $16, $16, $19
+	sw $16, ptr_ghost_mid
+	
+	lw $17, ptr_ghost_side
+	add $17, $17, $20
+	sw $17, ptr_ghost_side
+	
+	la $15, line_ghost_values
+	add $15, $15, $16
+	la $16, line_ghost_values
+	add $16, $16, $17
+	lw $4, 0($15)
+	lw $5, 0($16)
+
+draw_hell_frame:
+
+	draw_ghost_left:
+		lw $7, column_ghost_left
+		add $4, $0, $5
+		jal draw_ghost
+
+	draw_ghost_mid:
+		lw $7, column_ghost_mid
+		lw $4, 0($15)
+		jal draw_ghost
+
+	draw_ghost_right:
+		lw $7, column_ghost_right
+		add $4, $0, $5
+		jal draw_ghost
+		
+	lw $16, ptr_ghost_mid
+	add $16, $16, $19
+	sw $16, ptr_ghost_mid
+	
+	lw $17, ptr_ghost_side
+	add $17, $17, $20
+	sw $17, ptr_ghost_side
+	
+	jr $25
