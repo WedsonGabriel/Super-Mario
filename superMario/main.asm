@@ -75,24 +75,31 @@ pressed_d:
 
 no_key:
 	jr $31
-
+	
 # ====================================================================
 # COLISÃO: LIMITES DA TELA E PROGRESSÃO
 # ====================================================================
 # entrada: nenhuma
-# alterados: $10, $11, $12
+# alterados: $10, $11, $12, $13
 # saída: void
 check_boundaries:
 	lw $10, pos_player_column
 	lw $11, current_phase
 	
-	blez $10, check_out_left # colisão esquerda (eixo X <= 0)
+	# Colisão Esquerda (eixo X <= 0)
+	# Se $10 (posição) for menor que 1, $13 recebe 1.
+	slti $13, $10, 1
+	beq $13, 1, check_out_left 
 	
-	addi $12, $0, 118 # colisão direita (largura da tela é 128. "Quadrado = 10". Limite = 118) ALTERAR QUANDO INSERIR O MÁRIO
-	bge $10, $12, check_out_right
+	# Colisão Direita (Largura da tela é 128. Quadrado = 10. Limite = 118)
+	# Se $10 (posição, que continua intacta!) for menor que 118, $13 recebe 1. 
+	# Logo, se for 0, é porque bateu/passou de 118.
+	addi $12, $0, 118 
+	slt $13, $10, $12
+	beq $13, 0, check_out_right
 	
 	jr $31 # apenas volta para o game_manager
-
+	
 # entrada: nenhuma
 # alterados: nenhuma
 # saída: void
